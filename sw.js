@@ -1,7 +1,7 @@
 /* Offline-fil til Fis og ballade.
    VIGTIGT: Skift versionsnummeret herunder, hver gang en fil i appen ændres.
    Så henter telefonen de nye filer og smider de gamle væk. */
-const CACHE = 'fob-v1';
+const CACHE = 'fob-v2';
 
 const ASSETS = [
   './',
