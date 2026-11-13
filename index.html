@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<title>Fis og ballade</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1A1D4A">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Fis og ballade">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+@font-face{font-family:'Big Shoulders Display';font-weight:700;font-style:normal;font-display:swap;src:url(fonts/big-shoulders-display-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Big Shoulders Display';font-weight:800;font-style:normal;font-display:swap;src:url(fonts/big-shoulders-display-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Atkinson Hyperlegible';font-weight:400;font-style:normal;font-display:swap;src:url(fonts/atkinson-hyperlegible-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Atkinson Hyperlegible';font-weight:700;font-style:normal;font-display:swap;src:url(fonts/atkinson-hyperlegible-latin-700-normal.woff2) format('woff2')}
+:root{
+  --nat:#1A1D4A; --nat-lys:#262A5E; --nat-kant:#0E1030;
+  --etiket:#F3EEDC; --taage:#AEB0D6;
+  --gul:#F5C518; --gul-kant:#B38F00;
+  --rec:#E8413C; --rec-kant:#9A2320;
+  --display:'Big Shoulders Display','Arial Narrow','Impact',sans-serif;
+  --body:'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0}
+body{
+  background:var(--nat);color:var(--etiket);
+  font:400 18px/1.4 var(--body);
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+  -webkit-user-select:none;user-select:none;
+  -webkit-touch-callout:none;
+}
+#app{height:100%;max-width:480px;margin:0 auto;display:flex;flex-direction:column;padding:8px 20px 20px;position:relative}
+h1,h2,p{margin:0}
+
+/* ---------- Knapper med fysisk trykfølelse ---------- */
+.btn{
+  font:inherit;border:0;cursor:pointer;color:inherit;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  transition:transform .06s ease-out,box-shadow .06s ease-out,filter .06s ease-out,background-color .12s;
+}
+.btn:focus-visible{outline:3px solid var(--gul);outline-offset:3px}
+.btn-p{
+  width:100%;height:72px;border-radius:20px;background:var(--gul);color:var(--nat);
+  font-weight:700;font-size:22px;box-shadow:0 6px 0 var(--gul-kant);
+}
+.btn-s{
+  min-height:56px;padding:0 20px;border-radius:16px;background:var(--nat-lys);color:var(--etiket);
+  font-weight:700;font-size:18px;box-shadow:0 4px 0 var(--nat-kant);
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+}
+.btn-s svg{width:24px;height:24px}
+.btn-t{min-height:48px;padding:0 14px;background:none;color:var(--etiket);font-size:18px;border-radius:12px}
+.btn-p.down,.btn-p:active{transform:translateY(5px) scale(.98);box-shadow:0 1px 0 var(--gul-kant);filter:brightness(.9)}
+.btn-s.down,.btn-s:active{transform:translateY(3px) scale(.98);box-shadow:0 1px 0 var(--nat-kant);filter:brightness(.88)}
+.btn-t.down,.btn-t:active{text-decoration:underline;filter:brightness(1.15)}
+.btn-r{
+  width:120px;height:120px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;
+  background:var(--rec);color:#fff;box-shadow:0 8px 0 var(--rec-kant);touch-action:none;
+}
+.btn-r svg{width:52px;height:52px}
+.btn-r.down,.btn-r:active{transform:translateY(6px) scale(.97);box-shadow:0 2px 0 var(--rec-kant);filter:brightness(.92)}
+.btn-r.on{background:var(--etiket);color:var(--rec);animation:ring .9s ease-out infinite;transform:translateY(6px) scale(.97)}
+.btn-g{background:var(--gul);color:var(--nat);box-shadow:0 8px 0 var(--gul-kant)}
+.btn-g svg{width:56px;height:56px}
+.btn-g.down,.btn-g:active{box-shadow:0 2px 0 var(--gul-kant)}
+.shake{animation:shake .25s ease-in-out}
+@keyframes ring{0%{box-shadow:0 2px 0 var(--rec-kant),0 0 0 0 rgba(232,65,60,.65)}100%{box-shadow:0 2px 0 var(--rec-kant),0 0 0 30px rgba(232,65,60,0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.busy .btn:not(.keep){opacity:.4;pointer-events:none}
+
+/* ---------- Layout ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;min-height:48px;gap:8px}
+.top .btn-t{margin-left:-14px}
+.top .btn-t.r{margin-left:0;margin-right:-14px}
+.dots{display:flex;gap:8px;align-items:center}
+.dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--taage)}
+.dot.on{background:var(--gul);border-color:var(--gul)}
+.stage{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:14px}
+.kat{font-size:15px;color:var(--taage)}
+.navn{font-family:var(--display);font-weight:800;font-size:56px;line-height:1.02;letter-spacing:.01em;text-wrap:balance;overflow-wrap:anywhere}
+.navn.lang{font-size:44px}
+.navn.spejl{color:var(--gul)}
+.navn.spoerg{color:var(--etiket)}
+canvas.wave{width:100%;height:88px;display:block}
+.tb{width:100%;height:6px;border-radius:3px;background:var(--nat-lys);overflow:hidden}
+.tb i{display:block;height:100%;width:0;background:var(--rec)}
+.hjaelp{color:var(--taage);font-size:18px;min-height:52px}
+.hjaelp.warn{color:var(--gul);font-weight:700}
+.dock{display:flex;flex-direction:column;gap:14px;padding-top:10px}
+.row{display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap}
+
+/* ---------- Forside ---------- */
+.logo{font-family:var(--display);font-weight:800;font-size:76px;line-height:.92;text-align:left;width:100%;text-wrap:balance}
+.sub{color:var(--taage);text-align:left;width:100%}
+.tile{width:100%;padding:0;border-radius:20px;background:var(--nat-lys);overflow:hidden;text-align:left;box-shadow:0 6px 0 var(--nat-kant);display:block}
+.tile.down,.tile:active{transform:translateY(5px) scale(.99);box-shadow:0 1px 0 var(--nat-kant);filter:brightness(.9)}
+.band{background:var(--gul);color:var(--nat);padding:12px 20px;display:flex;align-items:center;gap:12px}
+.band i{width:14px;height:14px;border-radius:50%;background:var(--rec);flex:none}
+.band b{font-family:var(--display);font-weight:800;font-size:44px;line-height:1}
+.tile .txt{display:block;padding:14px 20px 18px;font-size:18px}
+
+/* ---------- Kategorier ---------- */
+h2.over{font-family:var(--display);font-weight:800;font-size:28px;margin:8px 0 14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-bottom:8px}
+.cat{border-radius:16px;background:var(--nat-lys);padding:14px 16px;text-align:left;min-height:96px;box-shadow:0 4px 0 var(--nat-kant);display:flex;flex-direction:column;justify-content:space-between;gap:8px}
+.cat b{font-family:var(--display);font-weight:800;font-size:28px;line-height:1.05}
+.cat span{font-size:15px;color:var(--taage)}
+.cat.down,.cat:active{transform:translateY(3px) scale(.98);box-shadow:0 1px 0 var(--nat-kant);filter:brightness(.88)}
+.alle{grid-column:1/-1}
+.scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* ---------- Overlay ---------- */
+.over-panel{position:absolute;inset:0;background:var(--nat);z-index:5;display:flex;flex-direction:column;padding:20px}
+.over-panel h2{font-family:var(--display);font-weight:800;font-size:34px;margin-bottom:12px}
+.over-panel ol{padding-left:24px;margin:0 0 16px;display:flex;flex-direction:column;gap:12px}
+.over-panel .tip{color:var(--taage);font-size:15px}
+.over-panel .fill{flex:1;min-height:0;overflow-y:auto}
+
+@media (prefers-reduced-motion:reduce){
+  .btn{transition:none}.btn-r.on{animation:none}.shake{animation:none}
+}
+@media (max-height:640px){
+  .navn{font-size:46px}.navn.lang{font-size:38px}canvas.wave{height:64px}.btn-r{width:104px;height:104px}
+}
+</style>
+</head>
+<body>
+<div id="app" aria-live="off"></div>
+<script>
+'use strict';
+
+/* ================= Data ================= */
+var MIN_MS = 500, MAX_MS = 6000, BARS = 56;
+
+var CATS = [
+  {id:'hp', navn:'Harry Potter', eks:'Hagrid, Dobby', navne:['Harry Potter','Hermione Granger','Ron Weasley','Albus Dumbledore','Severus Snape','Rubeus Hagrid','Lord Voldemort','Draco Malfoy','Sirius Black','Dobby','Hedwig','Neville Longbottom','Luna Lovegood','Bellatrix Lestrange','Minerva McGonagall']},
+  {id:'film', navn:'Film', eks:'Keanu Reeves, Zendaya', navne:['Tom Cruise','Brad Pitt','Leonardo DiCaprio','Scarlett Johansson','Keanu Reeves','Meryl Streep','Will Smith','Morgan Freeman','Johnny Depp','Angelina Jolie','Ryan Gosling','Margot Robbie','Zendaya','Tom Hanks','Shia LaBeouf']},
+  {id:'musik', navn:'Musik', eks:'Adele, Eminem', navne:['Taylor Swift','Beyoncé','Ed Sheeran','Billie Eilish','Michael Jackson','Elvis Presley','Lady Gaga','Bruno Mars','Rihanna','Eminem','Freddie Mercury','Madonna','Justin Bieber','Dua Lipa','Adele']},
+  {id:'sport', navn:'Sport', eks:'Usain Bolt, Serena Williams', navne:['Cristiano Ronaldo','Lionel Messi','Serena Williams','Usain Bolt','Michael Jordan','LeBron James','Roger Federer','Tiger Woods','David Beckham','Lewis Hamilton','Rafael Nadal','Wayne Rooney','Mike Tyson','Muhammad Ali','Simone Biles']},
+  {id:'tv', navn:'TV og kendisser', eks:'MrBeast, Gordon Ramsay', navne:['Gordon Ramsay','Oprah Winfrey','Kim Kardashian','MrBeast','Elon Musk','Bill Gates','Mark Zuckerberg','Steve Jobs','David Attenborough','Jennifer Aniston','Simon Cowell','Rowan Atkinson','Jeremy Clarkson','Paris Hilton','Ellen DeGeneres']}
+];
+
+/* ================= Tilstand ================= */
+var S = {
+  view:'forside', cat:null, round:null,
+  busy:false, recording:false, rec:null, play:null,
+  stream:null, ctx:null, err:null, help:false, helpShown:false,
+  decks:{}, holdPtr:null, helpTimer:0
+};
+var app = document.getElementById('app');
+
+/* ================= Hjælpere ================= */
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function seen(){try{return localStorage.getItem('fob-hjaelp')==='1';}catch(e){return false;}}
+function markSeen(){try{localStorage.setItem('fob-hjaelp','1');}catch(e){}}
+function mirror(t){return Array.from(t).reverse().join('');}
+
+var ICON = {
+  mic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+  play:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>',
+  back:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 6v12l-8-6zM21 6v12l-8-6z" fill="currentColor"/></svg>',
+  speaker:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a8 8 0 0 1 0 11"/></svg>'
+};
+
+/* ================= Navneliste ================= */
+function nextName(catId){
+  var pool=[];
+  CATS.forEach(function(c){
+    if(catId==='alle'||c.id===catId){c.navne.forEach(function(n){pool.push({n:n,c:c.navn});});}
+  });
+  var d=S.decks[catId];
+  if(!d||!d.length){
+    var last=S.lastName;
+    d=S.decks[catId]=shuffle(pool.slice());
+    if(d.length>1&&d[d.length-1].n===last){var t=d[0];d[0]=d[d.length-1];d[d.length-1]=t;}
+  }
+  var pick=d.pop();S.lastName=pick.n;return pick;
+}
+function newRound(){
+  var p=nextName(S.cat);
+  S.round={name:p.n,cat:p.c,step:1,played:false,orig:null,rev:null,imit:null,imitRev:null,pOrig:null,pImit:null};
+}
+
+/* ================= Lyd ================= */
+function unlock(){
+  try{
+    if(!S.ctx){var AC=window.AudioContext||window.webkitAudioContext;if(AC)S.ctx=new AC();}
+    if(S.ctx&&S.ctx.state==='suspended')S.ctx.resume();
+  }catch(e){}
+}
+['pointerdown','touchend','click'].forEach(function(ev){document.addEventListener(ev,unlock,{passive:true});});
+
+function ensureMic(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){return Promise.reject({name:'NoMediaDevices'});}
+  if(S.stream&&S.stream.getTracks().every(function(t){return t.readyState==='live';})){return Promise.resolve();}
+  return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:true}})
+    .catch(function(e){
+      if(e&&(e.name==='OverconstrainedError'||e.name==='TypeError')){return navigator.mediaDevices.getUserMedia({audio:true});}
+      throw e;
+    })
+    .then(function(s){S.stream=s;});
+}
+function releaseMic(){
+  if(S.stream){S.stream.getTracks().forEach(function(t){t.stop();});S.stream=null;}
+}
+function micErr(e){
+  var n=e&&e.name;
+  if(n==='NotAllowedError'||n==='SecurityError'||n==='PermissionDeniedError'){
+    return {t:'Appen må ikke bruge mikrofonen',b:'Tryk på låsen ved adresselinjen, vælg Tilladelser og slå mikrofon til. Genindlæs siden bagefter. Virker det ikke, så åbn linket direkte i Chrome og ikke inde i en anden app.'};
+  }
+  if(n==='NoMediaDevices'){
+    return {t:'Mikrofonen er ikke tilgængelig her',b:'Din browser tillader ikke mikrofon på denne side. Åbn linket direkte i Chrome.'};
+  }
+  if(n==='NotFoundError'||n==='DevicesNotFoundError'){
+    return {t:'Ingen mikrofon fundet',b:'Tilslut en mikrofon, eller prøv en anden enhed.'};
+  }
+  return {t:'Mikrofonen kunne ikke startes',b:'Luk andre apps, der bruger mikrofonen, og prøv igen.'};
+}
+
+function decode(blob){
+  return blob.arrayBuffer().then(function(ab){
+    return new Promise(function(res,rej){
+      var p=S.ctx.decodeAudioData(ab,res,rej);
+      if(p&&p.catch)p.catch(rej);
+    });
+  });
+}
+function prep(buf){
+  var sr=buf.sampleRate,ch=buf.numberOfChannels,n=buf.length,d=[],c,i;
+  for(c=0;c<ch;c++)d.push(buf.getChannelData(c));
+  var peak=0;
+  for(i=0;i<n;i++){for(c=0;c<ch;c++){var a=Math.abs(d[c][i]);if(a>peak)peak=a;}}
+  if(peak<0.01)return null;
+  var thr=Math.max(0.012,peak*0.08);
+  function loud(k){for(var q=0;q<ch;q++){if(Math.abs(d[q][k])>thr)return true;}return false;}
+  var s=0;while(s<n&&!loud(s))s++;
+  var e=n-1;while(e>s&&!loud(e))e--;
+  var pad=Math.round(sr*0.08);
+  s=Math.max(0,s-pad);e=Math.min(n-1,e+pad);
+  var len=e-s+1;
+  if(len<sr*0.15)return null;
+  var out=S.ctx.createBuffer(ch,len,sr),gain=Math.min(4,0.9/peak);
+  for(c=0;c<ch;c++){var o=out.getChannelData(c);for(i=0;i<len;i++)o[i]=d[c][s+i]*gain;}
+  return out;
+}
+function reverse(buf){
+  var out=S.ctx.createBuffer(buf.numberOfChannels,buf.length,buf.sampleRate);
+  for(var c=0;c<buf.numberOfChannels;c++){
+    var a=buf.getChannelData(c),o=out.getChannelData(c),n=a.length;
+    for(var i=0;i<n;i++)o[i]=a[n-1-i];
+  }
+  return out;
+}
+function peaksOf(buf){
+  var d=buf.getChannelData(0),n=d.length,step=n/BARS,out=[],m=0;
+  for(var i=0;i<BARS;i++){
+    var s=Math.floor(i*step),e=Math.min(n,Math.floor((i+1)*step)),p=0,k=Math.max(1,(e-s)>>6);
+    for(var j=s;j<e;j+=k){var v=Math.abs(d[j]);if(v>p)p=v;}
+    out.push(p);if(p>m)m=p;
+  }
+  return out.map(function(v){return m?Math.max(0.07,Math.sqrt(v/m)):0.07;});
+}
+
+/* ---------- Bølge ---------- */
+function drawWave(cv,peaks,o){
+  if(!cv)return;
+  o=o||{};
+  var dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;
+  if(!w||!h)return;
+  if(cv.width!==Math.round(w*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);}
+  var g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
+  var N=BARS,gap=3,bw=Math.max(2,(w-(N-1)*gap)/N),count=(o.count==null?N:o.count),p=o.progress||0;
+  for(var i=0;i<N;i++){
+    var v=(peaks&&peaks[i]!=null)?peaks[i]:0.07;
+    var bh=Math.max(5,v*h*0.92),x=i*(bw+gap),y=(h-bh)/2,played=false;
+    if(o.dir==='ltr')played=((i+0.5)/N)<=p;
+    else if(o.dir==='rtl')played=((N-i-0.5)/N)<=p;
+    g.fillStyle=(i>=count)?'#262A5E':(played?'#F5C518':'#AEB0D6');
+    if(g.roundRect){g.beginPath();g.roundRect(x,y,bw,bh,bw/2);g.fill();}else{g.fillRect(x,y,bw,bh);}
+  }
+}
+function waveEl(){return document.getElementById('wave');}
+
+/* ---------- Afspilning ---------- */
+function stopPlay(){
+  var P=S.play;
+  if(P){
+    clearTimeout(P.safety);cancelAnimationFrame(P.raf);
+    try{P.src.onended=null;P.src.stop();}catch(e){}
+    S.play=null;
+  }
+  S.busy=false;
+  app.classList.remove('busy');
+}
+function playBuf(buf,peaks,dir,done){
+  unlock();stopPlay();
+  if(!S.ctx||!buf)return;
+  var src=S.ctx.createBufferSource();src.buffer=buf;src.connect(S.ctx.destination);
+  var t0=S.ctx.currentTime+0.03;
+  var P=S.play={src:src,t0:t0,dur:buf.duration,raf:0,safety:0};
+  S.busy=true;app.classList.add('busy');
+  function finish(){
+    if(S.play!==P)return;
+    cancelAnimationFrame(P.raf);clearTimeout(P.safety);
+    S.play=null;S.busy=false;app.classList.remove('busy');
+    drawWave(waveEl(),peaks,{progress:0,dir:dir});
+    if(done)done();
+  }
+  src.onended=finish;
+  P.safety=setTimeout(finish,buf.duration*1000+600);
+  function tick(){
+    if(S.play!==P)return;
+    var p=Math.min(1,Math.max(0,(S.ctx.currentTime-t0)/buf.duration));
+    drawWave(waveEl(),peaks,{progress:p,dir:dir});
+    P.raf=requestAnimationFrame(tick);
+  }
+  src.start(t0);tick();
+}
+
+/* ---------- Oplæsning ---------- */
+function speakName(){
+  if(!('speechSynthesis' in window)||!S.round)return;
+  try{
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(S.round.name);
+    u.lang='en-US';u.rate=0.9;
+    var vs=speechSynthesis.getVoices();
+    var v=vs.filter(function(x){return /^en[-_]US/i.test(x.lang);})[0]||vs.filter(function(x){return /^en/i.test(x.lang);})[0];
+    if(v)u.voice=v;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ---------- Optagelse ---------- */
+function setHelp(t,warn){
+  var el=document.getElementById('hjaelp');
+  if(!el)return;
+  el.textContent=t;el.classList.toggle('warn',!!warn);
+}
+function helpFor(step){
+  return ['','Hold knappen nede og sig navnet','Lyt, og hold så knappen nede og sig det, du hører','Hold telefonen frem, så alle kan høre, og tryk på afspil','Hør originalen og sammenlign'][step];
+}
+function flash(msg){
+  setHelp(msg,true);
+  clearTimeout(S.helpTimer);
+  S.helpTimer=setTimeout(function(){if(S.round)setHelp(helpFor(S.round.step),false);},3200);
+}
+function startRec(kind){
+  if(S.recording||S.busy||!S.round)return;
+  if(!S.stream||!window.MediaRecorder){flash('Mikrofonen er ikke klar. Tryk på Afslut runde, og prøv igen.');return;}
+  unlock();
+  var mime=['audio/webm;codecs=opus','audio/mp4','audio/webm','audio/ogg;codecs=opus'].filter(function(m){
+    try{return MediaRecorder.isTypeSupported(m);}catch(e){return false;}
+  })[0];
+  var mr;
+  try{mr=mime?new MediaRecorder(S.stream,{mimeType:mime}):new MediaRecorder(S.stream);}
+  catch(e){flash('Optagelse virker ikke i denne browser. Prøv Chrome.');return;}
+  var r=S.rec={mr:mr,chunks:[],kind:kind,t0:performance.now(),live:[],last:0,raf:0,mime:mr.mimeType||mime||'audio/webm',ended:false};
+  mr.ondataavailable=function(e){if(e.data&&e.data.size)r.chunks.push(e.data);};
+  try{
+    r.src=S.ctx.createMediaStreamSource(S.stream);
+    r.an=S.ctx.createAnalyser();r.an.fftSize=1024;r.src.connect(r.an);
+    r.buf=new Float32Array(r.an.fftSize);
+  }catch(e){r.an=null;}
+  S.recording=true;
+  var btn=document.querySelector('[data-hold]');
+  if(btn)btn.classList.add('on');
+  setHelp('Optager…',false);
+  clearTimeout(S.helpTimer);
+  try{mr.start();}catch(e){S.recording=false;flash('Optagelsen kunne ikke starte. Prøv igen.');return;}
+  tickRec();
+}
+function tickRec(){
+  var r=S.rec;
+  if(!r||r.ended)return;
+  var el=performance.now()-r.t0;
+  if(r.an&&performance.now()-r.last>90){
+    r.last=performance.now();
+    r.an.getFloatTimeDomainData(r.buf);
+    var s=0;for(var i=0;i<r.buf.length;i++)s+=r.buf[i]*r.buf[i];
+    r.live.push(Math.min(1,Math.max(0.07,Math.sqrt(s/r.buf.length)*5)));
+    if(r.live.length>BARS)r.live.shift();
+    drawWave(waveEl(),r.live,{count:r.live.length});
+  }
+  var f=document.getElementById('tbf');
+  if(f)f.style.width=Math.min(100,el/MAX_MS*100)+'%';
+  if(el>=MAX_MS){stopRec();return;}
+  r.raf=requestAnimationFrame(tickRec);
+}
+function stopRec(){
+  var r=S.rec;
+  if(!r||r.ended)return;
+  r.ended=true;S.recording=false;cancelAnimationFrame(r.raf);
+  var dur=performance.now()-r.t0;
+  var btn=document.querySelector('[data-hold]');
+  if(btn)btn.classList.remove('on');
+  var f=document.getElementById('tbf');if(f)f.style.width='0';
+  r.mr.onstop=function(){
+    try{r.src&&r.src.disconnect();}catch(e){}
+    if(dur<MIN_MS){
+      if(btn){btn.classList.remove('shake');void btn.offsetWidth;btn.classList.add('shake');}
+      drawWave(waveEl(),null,{count:0});
+      flash('Hold knappen lidt længere');return;
+    }
+    S.busy=true;app.classList.add('busy');setHelp('Vender lyden…',false);
+    var blob=new Blob(r.chunks,{type:r.mime});
+    decode(blob).then(function(buf){
+      var t=prep(buf);
+      S.busy=false;app.classList.remove('busy');
+      if(!t){drawWave(waveEl(),null,{count:0});flash('Vi hørte ikke noget. Prøv igen tættere på mikrofonen');return;}
+      var R=S.round;if(!R)return;
+      if(r.kind==='orig'){
+        R.orig=t;R.rev=reverse(t);R.pOrig=peaksOf(t);R.step=2;render();
+        playBuf(R.rev,R.pOrig,'rtl');
+      }else{
+        R.imit=t;R.imitRev=reverse(t);R.pImit=peaksOf(R.imitRev);R.step=3;R.played=false;render();
+      }
+    }).catch(function(){
+      S.busy=false;app.classList.remove('busy');
+      drawWave(waveEl(),null,{count:0});
+      flash('Lyden kunne ikke behandles. Optag igen');
+    });
+  };
+  setTimeout(function(){try{r.mr.stop();}catch(e){}},150);
+}
+
+/* ================= Visninger ================= */
+function dots(step){
+  var h='<div class="dots" role="img" aria-label="Trin '+step+' af 4">';
+  for(var i=1;i<=4;i++)h+='<span class="dot'+(i<=step?' on':'')+'"></span>';
+  return h+'</div>';
+}
+function forsideView(){
+  return '<div class="top"></div>'+
+  '<section class="stage"><h1 class="logo">Fis og ballade</h1><p class="sub">Små spil til aftenen</p></section>'+
+  '<div class="dock"><button class="btn tile" data-act="tilStart" aria-label="Spil Rewind"><span class="band"><i></i><b>Rewind</b></span><span class="txt">Sig det baglæns. Held og lykke.</span></button></div>';
+}
+function startView(){
+  var h='<div class="top"><button class="btn btn-t" data-act="tilForside">Forside</button><button class="btn btn-t r" data-act="hjaelp">Sådan spiller du</button></div>'+
+  '<h2 class="over">Vælg kategori</h2><div class="scroll"><div class="grid">';
+  CATS.forEach(function(c){h+='<button class="btn cat" data-act="cat" data-id="'+c.id+'"><b>'+esc(c.navn)+'</b><span>'+esc(c.eks)+'</span></button>';});
+  h+='<button class="btn btn-p alle" data-act="cat" data-id="alle">Bland alle</button></div></div>';
+  return h;
+}
+function helpPanel(){
+  return '<div class="over-panel"><div class="fill"><h2>Sådan spiller du</h2><ol>'+
+  '<li>Optageren ser et navn og siger det højt. Hold knappen nede, mens du taler.</li>'+
+  '<li>Appen spiller optagelsen baglæns. Lyt, og sig så den baglæns lyd, så godt du kan.</li>'+
+  '<li>Appen vender din efterligning om og spiller den højt, så de andre kan gætte.</li>'+
+  '<li>Tryk på Vis svar, når der er gættet.</li></ol>'+
+  '<p class="tip">Sig navnet tydeligt, og hold telefonen tæt på munden.</p></div>'+
+  '<button class="btn btn-p" data-act="lukHjaelp">Forstået</button></div>';
+}
+function errView(){
+  var e=S.err;
+  return '<div class="top"></div><section class="stage" style="text-align:left;align-items:flex-start"><h2 class="over" style="margin:0">'+esc(e.t)+'</h2><p>'+esc(e.b)+'</p></section>'+
+  '<div class="dock"><button class="btn btn-p" data-act="provIgen">Prøv igen</button><button class="btn btn-t" data-act="fejlTilbage">Tilbage</button></div>';
+}
+function runView(){
+  var R=S.round,st=R.step,label=(st===3&&S.cat==='alle')?'Bland alle':R.cat;
+  var h='<div class="top"><button class="btn btn-t keep" data-act="afslut">Afslut runde</button>'+dots(st)+'</div><section class="stage">';
+  h+='<p class="kat">'+esc(label)+'</p>';
+  var cls='navn'+(R.name.length>18?' lang':'');
+  if(st===1||st===4)h+='<div class="'+cls+'">'+esc(R.name)+'</div>';
+  else if(st===2)h+='<div class="'+cls+' spejl" aria-label="Navnet baglæns">'+esc(mirror(R.name))+'</div>';
+  else h+='<div class="navn spoerg">Hvem er det?</div>';
+  h+='<canvas class="wave" id="wave" aria-hidden="true"></canvas>';
+  h+=(st<=2)?'<div class="tb"><i id="tbf"></i></div>':'';
+  h+='<p class="hjaelp" id="hjaelp" aria-live="polite">'+helpFor(st)+'</p></section><div class="dock">';
+  if(st===1){
+    h+='<button class="btn btn-r" data-hold="orig" aria-label="Hold nede for at optage">'+ICON.mic+'</button><div class="row">';
+    if('speechSynthesis' in window)h+='<button class="btn btn-s" data-act="hoerNavn">'+ICON.speaker+'Hør navnet</button>';
+    h+='<button class="btn btn-t" data-act="nytNavn">Nyt navn</button></div>';
+  }else if(st===2){
+    h+='<button class="btn btn-r" data-hold="imit" aria-label="Hold nede for at optage">'+ICON.mic+'</button><div class="row"><button class="btn btn-s" data-act="lytIgen">'+ICON.back+'Lyt igen</button><button class="btn btn-t" data-act="optagNavn">Optag navnet igen</button></div>';
+  }else if(st===3){
+    h+='<button class="btn btn-r btn-g" data-act="afspil" aria-label="Afspil for gætterne">'+ICON.play+'</button>';
+    h+='<div class="row">'+(R.played?'<button class="btn btn-s" data-act="visSvar">Vis svar</button>':'')+'<button class="btn btn-t" data-act="optagIgen">Optag igen</button></div>';
+  }else{
+    h+='<button class="btn btn-p" data-act="naeste">Næste runde</button><div class="row"><button class="btn btn-s" data-act="hoerOriginal">'+ICON.speaker+'Hør original</button><button class="btn btn-t" data-act="skift">Skift kategori</button></div>';
+  }
+  return h+'</div>';
+}
+
+function render(){
+  stopPlay();
+  clearTimeout(S.helpTimer);
+  var h;
+  if(S.err)h=errView();
+  else if(S.view==='forside')h=forsideView();
+  else if(S.view==='start')h=startView()+(S.help?helpPanel():'');
+  else h=runView();
+  app.innerHTML=h;
+  drawStatic();
+}
+function drawStatic(){
+  if(S.view!=='runde'||!S.round||S.err)return;
+  var R=S.round;
+  if(R.step===2)drawWave(waveEl(),R.pOrig,{progress:0,dir:'rtl'});
+  else if(R.step===3)drawWave(waveEl(),R.pImit,{progress:0,dir:'ltr'});
+  else if(R.step===4)drawWave(waveEl(),R.pOrig,{progress:0,dir:'ltr'});
+  else drawWave(waveEl(),null,{count:0});
+}
+
+/* ================= Navigation ================= */
+function go(v){
+  if(location.hash!=='#'+v){location.hash=v;}else{route();}
+}
+function route(){
+  var h=location.hash.slice(1),v=(h==='start'||h==='runde')?h:'forside';
+  if(v==='runde'&&!S.round)v='start';
+  if(v!=='runde'){
+    S.round=null;stopPlay();
+    if(S.recording)stopRec();
+    releaseMic();
+    try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){}
+  }
+  S.err=null;S.view=v;
+  if(v==='start'&&!S.helpShown&&!seen()){S.help=true;S.helpShown=true;}
+  try{if(h!==(v==='forside'?'':v)&&!(v==='forside'&&h===''))history.replaceState(null,'','#'+v);}catch(e){}
+  render();
+}
+window.addEventListener('hashchange',route);
+
+function startRound(id){
+  unlock();S.cat=id;
+  ensureMic().then(function(){newRound();go('runde');}).catch(function(e){S.err=micErr(e);render();});
+}
+
+/* ================= Hændelser ================= */
+app.addEventListener('click',function(e){
+  var t=e.target.closest('[data-act]');
+  if(!t)return;
+  var a=t.dataset.act,R=S.round;
+  if(S.busy&&a!=='afslut')return;
+  switch(a){
+    case 'tilStart':go('start');break;
+    case 'tilForside':go('forside');break;
+    case 'hjaelp':S.help=true;render();break;
+    case 'lukHjaelp':S.help=false;markSeen();render();break;
+    case 'cat':startRound(t.dataset.id);break;
+    case 'provIgen':S.err=null;if(S.cat)startRound(S.cat);else render();break;
+    case 'fejlTilbage':S.err=null;go('start');break;
+    case 'afslut':case 'skift':go('start');break;
+    case 'hoerNavn':speakName();break;
+    case 'nytNavn':newRound();render();break;
+    case 'lytIgen':if(R&&R.rev)playBuf(R.rev,R.pOrig,'rtl');break;
+    case 'optagNavn':R.step=1;render();break;
+    case 'afspil':if(R&&R.imitRev)playBuf(R.imitRev,R.pImit,'ltr',function(){if(!R.played){R.played=true;render();}});break;
+    case 'optagIgen':R.step=2;render();break;
+    case 'visSvar':R.step=4;render();break;
+    case 'hoerOriginal':if(R&&R.orig)playBuf(R.orig,R.pOrig,'ltr');break;
+    case 'naeste':newRound();render();break;
+  }
+});
+app.addEventListener('pointerdown',function(e){
+  var b=e.target.closest('.btn');
+  if(b){b.classList.add('down');S.down=b;}
+  var h=e.target.closest('[data-hold]');
+  if(!h||S.busy||S.recording)return;
+  e.preventDefault();
+  try{h.setPointerCapture(e.pointerId);}catch(_){}
+  S.holdPtr=e.pointerId;
+  startRec(h.dataset.hold);
+});
+function release(e){
+  if(S.down){S.down.classList.remove('down');S.down=null;}
+  if(S.recording&&(e.pointerId===S.holdPtr||S.holdPtr==null))stopRec();
+}
+window.addEventListener('pointerup',release);
+window.addEventListener('pointercancel',release);
+app.addEventListener('contextmenu',function(e){e.preventDefault();});
+window.addEventListener('resize',function(){if(!S.play&&!S.recording)drawStatic();});
+if('speechSynthesis' in window){try{speechSynthesis.getVoices();}catch(e){}}
+
+route();
+
+/* ================= Offline (service worker) ================= */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
