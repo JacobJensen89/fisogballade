@@ -1,6 +1,6 @@
 # Fis og ballade
 
-Samling af små selskabsspil til voksne og teenagere. Én PWA, én telefon, ingen server, ingen konto.
+Samling af små selskabsspil kun til voksne. Én PWA, én telefon, ingen server, ingen konto.
 Første spil: **Rewind**. Flere spil kommer senere som egne moduler på forsiden.
 
 ## Hvad Rewind er
@@ -48,7 +48,7 @@ Ret ikke i spillets opførsel eller design uden at spørge Jacob først.
 ## Beslutninger der er truffet
 
 - Kun engelske navne i version 1 (dansk oplæsning er usikker). 5 kategorier: Harry Potter, Film, Musik, Sport, TV og kendisser, plus Bland alle. 15 navne pr. kategori, skal udvides til ca. 30 efter test. Ingen politikere
-- Målgruppen er voksne og teenagere. Udtrykket er et festspil, ikke en børneapp
+- Målgruppen er kun voksne (18+). Udtrykket er et festspil, ikke en børneapp. Det gælder alle spil i appen
 - Ingen vibration. Feedback ved tryk er visuel: knappen skubbes ned og mørkner inden 0,1 sekund
 - Ingen point, konti, historik, deling eller reklamer i version 1
 
