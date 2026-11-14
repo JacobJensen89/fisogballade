@@ -150,7 +150,8 @@ var CATS = [
   {id:'sport', navn:'Sport', eks:'Usain Bolt, Serena Williams', navne:['Cristiano Ronaldo','Lionel Messi','Serena Williams','Usain Bolt','Michael Jordan','LeBron James','Roger Federer','Tiger Woods','David Beckham','Lewis Hamilton','Rafael Nadal','Wayne Rooney','Mike Tyson','Muhammad Ali','Simone Biles','Neymar','Kylian Mbappé','Zlatan Ibrahimovic','Novak Djokovic','Kobe Bryant','Stephen Curry','Tom Brady','Conor McGregor','Floyd Mayweather','Venus Williams','Max Verstappen','Michael Phelps','Pelé','Diego Maradona','Erling Haaland']},
   {id:'tv', navn:'TV og kendisser', eks:'MrBeast, Gordon Ramsay', navne:['Gordon Ramsay','Oprah Winfrey','Kim Kardashian','MrBeast','Elon Musk','Bill Gates','Mark Zuckerberg','Steve Jobs','David Attenborough','Jennifer Aniston','Simon Cowell','Rowan Atkinson','Jeremy Clarkson','Paris Hilton','Ellen DeGeneres','Ricky Gervais','Jimmy Fallon','Jimmy Kimmel','Trevor Noah','Graham Norton','Gwyneth Paltrow','Kylie Jenner','Joe Rogan','Jamie Oliver','Bear Grylls','Mr Bean','Dwayne Johnson','Kevin Hart','Taylor Lautner','Jeff Bezos']},
   {id:'sw', navn:'Star Wars', eks:'Yoda, Darth Vader', navne:['Luke Skywalker','Darth Vader','Princess Leia','Han Solo','Yoda','Obi-Wan Kenobi','Chewbacca','Palpatine','Anakin Skywalker','Padmé Amidala','Boba Fett','Jabba the Hutt','Kylo Ren','Rey','Mace Windu','Qui-Gon Jinn','Darth Maul','Count Dooku','General Grievous','Lando Calrissian','C-3PO','R2-D2','Grand Moff Tarkin','Jar Jar Binks','Ahsoka Tano','Finn','Poe Dameron','The Mandalorian','Grogu','Admiral Ackbar']},
-  {id:'lotr', navn:'Ringenes Herrer', eks:'Gandalf, Gollum', navne:['Frodo Baggins','Samwise Gamgee','Gandalf','Aragorn','Legolas','Gimli','Boromir','Gollum','Saruman','Sauron','Galadriel','Bilbo Baggins','Théoden','Éowyn','Meriadoc Brandybuck','Peregrin Took','Elrond','Arwen','Faramir','Treebeard','Gríma Wormtongue','Witch-king of Angmar','Tom Bombadil','Radagast','Smaug','Thorin Oakenshield','Gwaihir','Shelob','Denethor','Haldir']}
+  {id:'lotr', navn:'Ringenes Herrer', eks:'Gandalf, Gollum', navne:['Frodo Baggins','Samwise Gamgee','Gandalf','Aragorn','Legolas','Gimli','Boromir','Gollum','Saruman','Sauron','Galadriel','Bilbo Baggins','Théoden','Éowyn','Meriadoc Brandybuck','Peregrin Took','Elrond','Arwen','Faramir','Treebeard','Gríma Wormtongue','Witch-king of Angmar','Tom Bombadil','Radagast','Smaug','Thorin Oakenshield','Gwaihir','Shelob','Denethor','Haldir']},
+  {id:'boern', navn:'Børn', lang:'da-DK', eks:'Bamse, Pippi Langstrømpe', navne:['Bamse','Kylling','Pippi Langstrømpe','Rasmus Klump','Pingo','Peter Plys','Postmand Per','Brandmand Sam','Alfons Åberg','Emil fra Lønneberg','Karlsson på taget','Mumitrolden','Cirkeline','Hugo','Skipper Skræk','Gurli Gris','Pelle Politibil','Orla Frøsnapper','Rita og Krokodille','Pixi','Ole Lukøje','Tommelise','Den lille Havfrue','Klods-Hans','Snedronningen','Mulle Meck','Bjørnebanden','Oskar og Josefine','Pjerrot','Fyrtøjet']}
 ];
 
 /* ================= Tilstand ================= */
@@ -180,7 +181,7 @@ var ICON = {
 function nextName(catId){
   var pool=[];
   CATS.forEach(function(c){
-    if(catId==='alle'||c.id===catId){c.navne.forEach(function(n){pool.push({n:n,c:c.navn});});}
+    if(catId==='alle'||c.id===catId){c.navne.forEach(function(n){pool.push({n:n,c:c.navn,l:c.lang||'en-US'});});}
   });
   var d=S.decks[catId];
   if(!d||!d.length){
@@ -192,7 +193,7 @@ function nextName(catId){
 }
 function newRound(){
   var p=nextName(S.cat);
-  S.round={name:p.n,cat:p.c,step:1,played:false,orig:null,rev:null,imit:null,imitRev:null,pOrig:null,pImit:null};
+  S.round={name:p.n,cat:p.c,lang:p.l,step:1,played:false,orig:null,rev:null,imit:null,imitRev:null,pOrig:null,pImit:null};
 }
 
 /* ================= Lyd ================= */
@@ -337,9 +338,10 @@ function speakName(){
   try{
     speechSynthesis.cancel();
     var u=new SpeechSynthesisUtterance(S.round.name);
-    u.lang='en-US';u.rate=0.9;
+    var L=S.round.lang||'en-US',B=L.slice(0,2).toLowerCase();
+    u.lang=L;u.rate=0.9;
     var vs=speechSynthesis.getVoices();
-    var v=vs.filter(function(x){return /^en[-_]US/i.test(x.lang);})[0]||vs.filter(function(x){return /^en/i.test(x.lang);})[0];
+    var v=vs.filter(function(x){return x.lang.replace('_','-').toLowerCase()===L.toLowerCase();})[0]||vs.filter(function(x){return x.lang.toLowerCase().indexOf(B)===0;})[0];
     if(v)u.voice=v;
     speechSynthesis.speak(u);
   }catch(e){}
