@@ -64,6 +64,10 @@ h1,h2,p{margin:0}
 .btn-p.down,.btn-p:active{transform:translateY(5px) scale(.98);box-shadow:0 1px 0 var(--gul-kant);filter:brightness(.9)}
 .btn-s.down,.btn-s:active{transform:translateY(3px) scale(.98);box-shadow:0 1px 0 var(--nat-kant);filter:brightness(.88)}
 .btn-t.down,.btn-t:active{text-decoration:underline;filter:brightness(1.15)}
+.tempo{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}
+.tempo span{font-size:15px;color:var(--taage)}
+.tempo .btn{min-height:48px;padding:0 14px;border-radius:12px;background:var(--nat-lys);color:var(--etiket);font-size:16px;box-shadow:0 3px 0 var(--nat-kant)}
+.tempo .btn[aria-pressed=true]{background:var(--gul);color:var(--nat);box-shadow:0 3px 0 var(--gul-kant)}
 .btn-r{
   width:120px;height:120px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;
   background:var(--rec);color:#fff;box-shadow:0 8px 0 var(--rec-kant);touch-action:none;
@@ -168,6 +172,14 @@ function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp
 function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function seen(){try{return localStorage.getItem('fob-hjaelp')==='1';}catch(e){return false;}}
 function markSeen(){try{localStorage.setItem('fob-hjaelp','1');}catch(e){}}
+var TEMPI=[{v:1,t:'Normal'},{v:0.75,t:'Langsom'},{v:0.5,t:'Meget langsom'}];
+function tempo(){try{var v=parseFloat(localStorage.getItem('fob-tempo'));if(v===0.75||v===0.5)return v;}catch(e){}return 1;}
+function setTempo(v){try{localStorage.setItem('fob-tempo',String(v));}catch(e){}}
+function tempoView(){
+  var c=tempo(),h='<div class="tempo" role="group" aria-label="Tempo">';
+  TEMPI.forEach(function(x){h+='<button class="btn" data-act="tempo" data-v="'+x.v+'" aria-pressed="'+(x.v===c)+'">'+x.t+'</button>';});
+  return h+'</div>';
+}
 function mirror(t){return Array.from(t).reverse().join('');}
 
 var ICON = {
@@ -310,9 +322,10 @@ function stopPlay(){
 function playBuf(buf,peaks,dir,done){
   unlock();stopPlay();
   if(!S.ctx||!buf)return;
-  var src=S.ctx.createBufferSource();src.buffer=buf;src.connect(S.ctx.destination);
+  var src=S.ctx.createBufferSource();src.buffer=buf;var rate=tempo();src.playbackRate.value=rate;src.connect(S.ctx.destination);
   var t0=S.ctx.currentTime+0.03;
-  var P=S.play={src:src,t0:t0,dur:buf.duration,raf:0,safety:0};
+  var dur=buf.duration/rate;
+  var P=S.play={src:src,t0:t0,dur:dur,raf:0,safety:0};
   S.busy=true;app.classList.add('busy');
   function finish(){
     if(S.play!==P)return;
@@ -322,10 +335,10 @@ function playBuf(buf,peaks,dir,done){
     if(done)done();
   }
   src.onended=finish;
-  P.safety=setTimeout(finish,buf.duration*1000+600);
+  P.safety=setTimeout(finish,dur*1000+600);
   function tick(){
     if(S.play!==P)return;
-    var p=Math.min(1,Math.max(0,(S.ctx.currentTime-t0)/buf.duration));
+    var p=Math.min(1,Math.max(0,(S.ctx.currentTime-t0)/dur));
     drawWave(waveEl(),peaks,{progress:p,dir:dir});
     P.raf=requestAnimationFrame(tick);
   }
@@ -488,12 +501,12 @@ function runView(){
     if('speechSynthesis' in window)h+='<button class="btn btn-s" data-act="hoerNavn">'+ICON.speaker+'Hør navnet</button>';
     h+='<button class="btn btn-t" data-act="nytNavn">Nyt navn</button></div>';
   }else if(st===2){
-    h+='<button class="btn btn-r" data-hold="imit" aria-label="Hold nede for at optage">'+ICON.mic+'</button><div class="row"><button class="btn btn-s" data-act="lytIgen">'+ICON.back+'Lyt igen</button><button class="btn btn-t" data-act="optagNavn">Optag navnet igen</button></div>';
+    h+='<button class="btn btn-r" data-hold="imit" aria-label="Hold nede for at optage">'+ICON.mic+'</button><div class="row"><button class="btn btn-s" data-act="lytIgen">'+ICON.back+'Lyt igen</button><button class="btn btn-t" data-act="optagNavn">Optag navnet igen</button></div>'+tempoView();
   }else if(st===3){
     h+='<button class="btn btn-r btn-g" data-act="afspil" aria-label="Afspil for gætterne">'+ICON.play+'</button>';
-    h+='<div class="row">'+(R.played?'<button class="btn btn-s" data-act="visSvar">Vis svar</button>':'')+'<button class="btn btn-t" data-act="optagIgen">Optag igen</button></div>';
+    h+='<div class="row">'+(R.played?'<button class="btn btn-s" data-act="visSvar">Vis svar</button>':'')+'<button class="btn btn-t" data-act="optagIgen">Optag igen</button></div>'+tempoView();
   }else{
-    h+='<button class="btn btn-p" data-act="naeste">Næste runde</button><div class="row"><button class="btn btn-s" data-act="hoerOriginal">'+ICON.speaker+'Hør original</button><button class="btn btn-t" data-act="skift">Skift kategori</button></div>';
+    h+='<button class="btn btn-p" data-act="naeste">Næste runde</button><div class="row"><button class="btn btn-s" data-act="hoerOriginal">'+ICON.speaker+'Hør original</button><button class="btn btn-t" data-act="skift">Skift kategori</button></div>'+tempoView();
   }
   return h+'</div>';
 }
@@ -559,6 +572,7 @@ app.addEventListener('click',function(e){
     case 'fejlTilbage':S.err=null;go('start');break;
     case 'afslut':case 'skift':go('start');break;
     case 'hoerNavn':speakName();break;
+    case 'tempo':setTempo(parseFloat(t.dataset.v));render();break;
     case 'nytNavn':newRound();render();break;
     case 'lytIgen':if(R&&R.rev)playBuf(R.rev,R.pOrig,'rtl');break;
     case 'optagNavn':R.step=1;render();break;
