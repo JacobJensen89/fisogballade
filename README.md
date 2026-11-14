@@ -39,6 +39,7 @@ Ret ikke i spillets opførsel eller design uden at spørge Jacob først.
 - [ ] Mikrofonen: Chrome spørger om adgang første gang man vælger en kategori
 - [ ] Optag et navn, og hør at det spilles baglæns
 - [ ] Sig den baglæns lyd, og hør at efterligningen spilles forlæns
+- [ ] Kategorien Børn: "Hør navnet" læser danske navne højt med dansk stemme (fx Pippi Langstrømpe, Emil fra Lønneberg)
 - [ ] "Hør navnet" læser engelske navne højt med en acceptabel udtale (fx Hermione Granger, Minerva McGonagall)
 - [ ] Knapperne føles som at trykke: de trykkes ned og bliver mørkere med det samme. Ingen vibration
 - [ ] "Installer app" / "Føj til startskærm" giver eget ikon og åbner uden adresselinje
@@ -47,8 +48,9 @@ Ret ikke i spillets opførsel eller design uden at spørge Jacob først.
 
 ## Beslutninger der er truffet
 
-- Kun engelske navne i version 1 (dansk oplæsning er usikker). 5 kategorier: Harry Potter, Film, Musik, Sport, TV og kendisser, plus Bland alle. 15 navne pr. kategori, skal udvides til ca. 30 efter test. Ingen politikere
-- Målgruppen er kun voksne (18+). Udtrykket er et festspil, ikke en børneapp. Det gælder alle spil i appen
+- Engelske navne i de første kategorier: Harry Potter, Film, Musik, Sport, TV og kendisser, Star Wars og Ringenes Herrer, plus Bland alle. 30 navne pr. kategori. Ingen politikere
+- Kategorien **Børn** har 30 danske børnefigurer (Bamse, Pippi Langstrømpe, Rasmus Klump m.fl.). Hver kategori kan have et sprog (`lang` i `CATS`), og "Hør navnet" bruger dansk stemme (`da-DK`) til de danske navne. Danske navne er med i Bland alle. Mangler telefonen en dansk stemme, bruges en anden stemme, og så lyder navnet skævt
+- Målgruppen er kun voksne (18+). Udtrykket er et festspil, ikke en børneapp (Børn er en kategori med børnefigurer til voksne). Det gælder alle spil i appen
 - Ingen vibration. Feedback ved tryk er visuel: knappen skubbes ned og mørkner inden 0,1 sekund
 - Ingen point, konti, historik, deling eller reklamer i version 1
 
